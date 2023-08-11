@@ -55,3 +55,14 @@ set_new_ssh_tun_addr() {
   fi
 }
 
+increment_last_octet() {
+  IP="$1"
+  # Split the IP address into its octets
+  IFS='.' read -ra OCTETS <<< "$IP"
+  # Increment the last octet
+  LAST_OCTET=$((OCTETS[3] + 1))
+  # Reassemble the IP address with the incremented last octet
+  NEW_IP="${OCTETS[0]}.${OCTETS[1]}.${OCTETS[2]}.${LAST_OCTET}"
+  echo "$NEW_IP"
+}
+
