@@ -174,6 +174,7 @@ local:
     IP: "$SSH_TUN_ADDR"
     dev: tun0
   NS:
+    name: "$TUN_NS_NAME"
     IP: "$VETH_ADDR"
     dev: $VPEER
 EOF
