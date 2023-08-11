@@ -78,6 +78,13 @@ REMOTE_NFT_RULER_FILE=remote_nft_ruler.sh
 scp $REMOTE_NFT_RULER_FILE $REMOTE_IP:/tmp
 ssh $REMOTE_IP bash /tmp/$REMOTE_NFT_RULER_FILE
 
+# Remove old tun and route
+info_log_await "Romoving old ssh tun/tap dev and route..."
+
+ip r d $remote_IP/32 2>/dev/null || true
+pkill -9 -f "ssh.*\-w.*$remote_IP" 2>/dev/null || true
+
+
 # Save config
 info_log_await "Saving config..."
 
