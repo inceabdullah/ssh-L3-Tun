@@ -78,4 +78,20 @@ REMOTE_NFT_RULER_FILE=remote_nft_ruler.sh
 scp $REMOTE_NFT_RULER_FILE $REMOTE_IP:/tmp
 ssh $REMOTE_IP bash /tmp/$REMOTE_NFT_RULER_FILE
 
+# Save config
+info_log_await "Saving config..."
+
+cat <<EOF > config.yaml
+remote:
+  IP: "$REMOTE_IP"
+local:
+  TUN:
+    IP: "$NEW_SSH_TUN_ADDR"
+    dev: $NEW_TUN_DEV
+  NS:
+    name: "$local_NS_name"
+    dev: $local_NS_dev
+  veth:
+    IP: "$local_veth_IP"
+EOF
 
