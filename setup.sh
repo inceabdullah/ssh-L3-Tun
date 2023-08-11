@@ -13,6 +13,7 @@ VPEER_ADDR="10.0.0.2"
 
 # ----
 SSH_TUN_ADDR="10.0.1.1"
+SSH_TUN_ADDR_REMOTE="10.0.1.2"
 
 
 # Removing old veth
@@ -120,7 +121,7 @@ ip netns e $TUN_NS_NAME bash ssh_l3_tunnel.sh $REMOTE_IP
 info_log "Setting ssh tun/tap dev addr and up in ns..."
 sleep $WAIT_FOR_RD
 
-ip netns e $TUN_NS_NAME ip a a $SSH_TUN_ADDR/24 dev tun0
+ip netns e $TUN_NS_NAME ip a a $SSH_TUN_ADDR/31 peer $SSH_TUN_ADDR_REMOTE  dev tun0
 ip netns e $TUN_NS_NAME ip l s tun0 up
 
 
@@ -134,3 +135,29 @@ ip netns e $TUN_NS_NAME bash tunnel_router.sh \
     --vpeer $VPEER \
     --ssh-tun-ip $SSH_TUN_ADDR \
     --ssh-tun-dev tun0
+
+# Set ssh tun dev addr remote
+info_log "Setting ssh tun/tap dev addr and up remote..."
+sleep $WAIT_FOR_RD
+
+ssh $REMOTE_IP /usr/sbin/ip a a $SSH_TUN_ADDR_REMOTE/31 peer $SSH_TUN_ADDR dev tun1
+ssh $REMOTE_IP /usr/sbin/ip l s tun1 up
+
+ip netns e $TUN_NS_NAME ping -c1 -W2 $SSH_TUN_ADDR_REMOTE
+
+if [ $? -ne 0 ]; then
+  echo -e "\e[1;31mPing failed\e[0m" # Bold red
+  # Handle the error here
+else
+  echo -e "\e[1;32mPing succeeded\e[0m" # Bold green
+  # Continue with the script
+fi
+
+# Remote NFT rules
+info_log "Setting nft rules in remote..."
+sleep $WAIT_FOR_RD
+
+REMOTE_NFT_RULER_FILE=remote_nft_ruler.sh
+
+scp $REMOTE_NFT_RULER_FILE $REMOTE_IP:/tmp
+ssh $REMOTE_IP bash /tmp/$REMOTE_NFT_RULER_FILE
