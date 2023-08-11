@@ -2,6 +2,9 @@
 #//TODO add save config yaml file and tun new and change def
 source helpers.sh
 
+# Exit immediately if any command exits with a non-zero status
+set -e
+
 REMOTE_IP=$1
 
 WAIT_FOR_RD=1
