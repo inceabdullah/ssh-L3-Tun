@@ -29,3 +29,17 @@ function parse_yaml {
    }'
 }
 
+set_new_tun_dev() {
+  OLD_TUN_DEV="$1"
+
+  if [ "$OLD_TUN_DEV" == "tun0" ]; then
+    echo "tun2"
+  elif [ "$OLD_TUN_DEV" == "tun2" ]; then
+    echo "tun0"
+  else
+    echo "Invalid tunnel device: $OLD_TUN_DEV" >&2
+    return 1
+  fi
+}
+
+
