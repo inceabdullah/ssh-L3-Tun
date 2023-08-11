@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#//TODO add save config yaml file and tun new and change def
 source helpers.sh
 
 REMOTE_IP=$1
@@ -161,3 +161,19 @@ REMOTE_NFT_RULER_FILE=remote_nft_ruler.sh
 
 scp $REMOTE_NFT_RULER_FILE $REMOTE_IP:/tmp
 ssh $REMOTE_IP bash /tmp/$REMOTE_NFT_RULER_FILE
+
+# Save config
+info_log "Saving config..."
+sleep $WAIT_FOR_RD
+
+cat <<EOF > config.yaml
+remote:
+  IP: "$REMOTE_IP"
+local:
+  TUN:
+    IP: "$SSH_TUN_ADDR"
+    dev: tun0
+  NS:
+    IP: "$VETH_ADDR"
+    dev: $VPEER
+EOF

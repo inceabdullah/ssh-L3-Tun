@@ -6,7 +6,8 @@ TIMEOUT=60 # Timeout in seconds
 SLEEP_INTERVAL=5 # Sleep interval in seconds
 COUNTER=0
 
-pkill -9 -f "autossh.*$REMOTE_IP" 2>/dev/null || true
+pkill -9 -f "ssh.*\-w.*$REMOTE_IP" 2>/dev/null || true
+sleep 2
 autossh -M 0 -f -N -w0:1 $REMOTE_IP
 
 
