@@ -175,6 +175,7 @@ local:
     dev: tun0
   NS:
     name: "$TUN_NS_NAME"
-    IP: "$VETH_ADDR"
     dev: $VPEER
+  veth:
+    IP: "$VETH_ADDR"
 EOF
