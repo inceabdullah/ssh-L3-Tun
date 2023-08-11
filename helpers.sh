@@ -42,4 +42,16 @@ set_new_tun_dev() {
   fi
 }
 
+set_new_ssh_tun_addr() {
+  OLD_SSH_TUN_ADDR="$1"
+
+  if [ "$OLD_SSH_TUN_ADDR" == "10.0.1.1" ]; then
+    echo "10.0.2.1"
+  elif [ "$OLD_SSH_TUN_ADDR" == "10.0.2.1" ]; then
+    echo "10.0.1.1"
+  else
+    echo "Invalid SSH tunnel address: $OLD_SSH_TUN_ADDR" >&2
+    return 1
+  fi
+}
 
