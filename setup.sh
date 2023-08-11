@@ -2,12 +2,18 @@
 
 source helpers.sh
 
+REMOTE_IP=$1
+
 WAIT_FOR_RD=1
 TUN_NS_NAME=vpn
 VETH="veth"
 VPEER="vpeer"
 VETH_ADDR="10.0.0.1"
 VPEER_ADDR="10.0.0.2"
+
+# ----
+SSH_TUN_ADDR="10.0.1.1"
+
 
 # Removing old veth
 info_log "Removing old veth..."
@@ -102,3 +108,29 @@ else
   echo -e "\e[1;32mPing succeeded\e[0m" # Bold green
   # Continue with the script
 fi
+
+# Ssh tun/tap tunnel ns
+info_log "Making ssh tun/tap tunnel in ns..."
+sleep $WAIT_FOR_RD
+
+ip netns e $TUN_NS_NAME bash ssh_l3_tunnel.sh $REMOTE_IP
+
+
+# Set ssh tun dev addr ns
+info_log "Setting ssh tun/tap dev addr and up in ns..."
+sleep $WAIT_FOR_RD
+
+ip netns e $TUN_NS_NAME ip a a $SSH_TUN_ADDR/24 dev tun0
+ip netns e $TUN_NS_NAME ip l s tun0 up
+
+
+# Router settings ns
+info_log "Setting routing in ns..."
+sleep $WAIT_FOR_RD
+
+ip netns e $TUN_NS_NAME bash tunnel_router.sh \
+    --remote-ip $REMOTE_IP \
+    --veth-addr $VETH_ADDR \
+    --vpeer $VPEER \
+    --ssh-tun-ip $SSH_TUN_ADDR \
+    --ssh-tun-dev tun0
