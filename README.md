@@ -13,6 +13,22 @@ ssh-L3-Tun is a robust Linux tool for managing Layer 3 SSH tunnels. It supports 
 
 ## Scripts
 
+### `ssh_tunnel_manager.sh --mode [mode]`
+
+This script manages SSH tunnel connections, allowing you to set up default connections, change connections, and more. The `--mode` parameter specifies the operation mode, which can be one of the following:
+
+- `default`: Set up the default connection.
+- `change`: Change the existing connection.
+
+Additional parameters can be passed to the underlying scripts.
+
+Usage:
+
+```bash
+./ssh_tunnel_manager.sh --mode default
+./ssh_tunnel_manager.sh --mode change [REMOTE_IP]
+```
+
 ### `setup.sh [REMOTE IP]`
 
 This script sets up the initial configuration, including creating network namespaces, virtual Ethernet pairs, and SSH tunnels. If a remote IP is provided, it will be used to establish the SSH tunnel.
