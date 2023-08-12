@@ -42,3 +42,4 @@ case "$MODE" in
     usage
     ;;
 esac
+flock --unlock 9
