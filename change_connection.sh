@@ -14,22 +14,38 @@ cat $CONFIG_FILE
 
 OLD_TUN_DEV=$local_TUN_dev
 
-NEW_TUN_DEV=$(set_new_tun_dev "$OLD_TUN_DEV")
-if [ $? -eq 0 ]; then
-  echo "Old tunnel device: $OLD_TUN_DEV"
-  echo "New tunnel device: $NEW_TUN_DEV"
+if [ -z "$OLD_TUN_DEV" ]; then
+  NEW_TUN_DEV="tun0"
 else
-  echo "An error occurred."
+  NEW_TUN_DEV=$(set_new_tun_dev "$OLD_TUN_DEV")
+  if [ $? -eq 0 ]; then
+    echo "Old tunnel device: $OLD_TUN_DEV"
+    echo "New tunnel device: $NEW_TUN_DEV"
+  else
+    echo "An error occurred."
+  fi
 fi
+
+
+
 
 OLD_SSH_TUN_ADDR=$local_TUN_IP
 
-NEW_SSH_TUN_ADDR=$(set_new_ssh_tun_addr "$OLD_SSH_TUN_ADDR")
-NEW_SSH_TUN_ADDR_REMOTE=$(increment_last_octet "$NEW_SSH_TUN_ADDR")
+if [ -z "$OLD_SSH_TUN_ADDR" ]; then
+    NEW_SSH_TUN_ADDR="10.0.1.1"
+    NEW_SSH_TUN_ADDR_REMOTE="10.0.1.2"
+else
+    NEW_SSH_TUN_ADDR=$(set_new_ssh_tun_addr "$OLD_SSH_TUN_ADDR")
+    NEW_SSH_TUN_ADDR_REMOTE=$(increment_last_octet "$NEW_SSH_TUN_ADDR")
+fi
 
 
 if [ $? -eq 0 ]; then
-  echo "Old SSH tunnel address: $OLD_SSH_TUN_ADDR"
+    if [ -z "$OLD_SSH_TUN_ADDR" ]; then
+        echo "Old SSH tunnel address is not assigned."
+    else
+        echo "Old SSH tunnel address: $OLD_SSH_TUN_ADDR"
+    fi
   echo "New SSH tunnel address: $NEW_SSH_TUN_ADDR"
   echo "New SSH tunnel remote address: $NEW_SSH_TUN_ADDR_REMOTE"
 else
@@ -82,19 +98,28 @@ ssh $REMOTE_IP bash /tmp/$REMOTE_NFT_RULER_FILE
 # Router settings ns
 info_log_await "Setting routing in ns..."
 
-ip netns e $local_NS_name bash tunnel_router.sh \
-    --remote-ip $REMOTE_IP \
-    --veth-addr $local_veth_IP \
-    --vpeer $local_NS_dev \
-    --ssh-tun-ip $NEW_SSH_TUN_ADDR \
-    --ssh-tun-dev $NEW_TUN_DEV \
-    --def-route-only
+parse_yaml $CONFIG_FILE
+
+    ip netns e $local_NS_name bash tunnel_router.sh \
+        --remote-ip $REMOTE_IP \
+        --veth-addr $local_veth_IP \
+        --vpeer $local_NS_dev \
+        --ssh-tun-ip $NEW_SSH_TUN_ADDR \
+        --ssh-tun-dev $NEW_TUN_DEV \
+        --def-route-only
+
+
 
 # Remove old tun and route
 info_log_await "Romoving old ssh tun/tap dev and route..."
 
-ip netns e $local_NS_name ip r d $remote_IP/32 2>/dev/null || true
-pkill -9 -f "ssh.*\-w.*$remote_IP" 2>/dev/null || true
+if [ -z "$OLD_SSH_TUN_ADDR" ]; then
+    echo "Remote tun IP is not assigned."
+else
+    ip netns e $local_NS_name ip r d $remote_IP/32 2>/dev/null || true
+    pkill -9 -f "ssh.*\-w.*$remote_IP" 2>/dev/null || true
+fi
+
 
 
 # Save config

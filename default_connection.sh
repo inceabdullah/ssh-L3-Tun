@@ -19,8 +19,6 @@ info_log_await "Setting routing in ns..."
 ip netns e $local_NS_name bash tunnel_router.sh \
     --veth-addr $local_veth_IP \
     --vpeer $local_NS_dev \
-    --ssh-tun-ip $NEW_SSH_TUN_ADDR \
-    --ssh-tun-dev $NEW_TUN_DEV \
     --def-route-only \
     --def-config
     
