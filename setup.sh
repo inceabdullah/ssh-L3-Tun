@@ -114,6 +114,29 @@ else
   # Continue with the script
 fi
 
+#if no REMOTE_IP, save config return 0
+if [ -z "$REMOTE_IP" ]; then
+    info_log_await "Only setup..."
+
+    cat <<EOF > config.yaml
+local:
+  NS:
+    name: "$TUN_NS_NAME"
+    dev: $VPEER
+  veth:
+    IP: "$VETH_ADDR"
+EOF
+    external_ip=$(get_external_ip "$TUN_NS_NAME")
+    if [ $? -eq 0 ]; then
+        echo "External IP: $external_ip"
+        exit 0
+    else
+        echo "Failed to retrieve the external IP."
+        exit 1
+    fi
+fi
+
+
 # Ssh tun/tap tunnel ns
 info_log "Making ssh tun/tap tunnel in ns..."
 sleep $WAIT_FOR_RD

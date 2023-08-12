@@ -71,3 +71,19 @@ tun_dev_id() {
   NUMBER="${TUN_DEV#tun}"
   echo "$NUMBER"
 }
+
+get_external_ip() {
+  local TUN_NS_NAME="$1"
+  local external_ip
+
+  external_ip=$(ip netns exec "${TUN_NS_NAME}" curl -sS --max-time 5 ifconfig.me)
+
+  # Check if the command was successful
+  if [ $? -ne 0 ]; then
+    echo "An error occurred while fetching the external IP." >&2
+    return 1
+  fi
+
+  echo "$external_ip"
+  return 0
+}

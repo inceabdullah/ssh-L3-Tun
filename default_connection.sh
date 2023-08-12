@@ -10,9 +10,6 @@ info_log_await "Reading config...\n$CONFIG_FILE:"
 eval $(parse_yaml $CONFIG_FILE)
 cat $CONFIG_FILE
 
-OLD_TUN_DEV=$local_TUN_dev
-OLD_SSH_TUN_ADDR=$local_TUN_IP
-
 # Router settings ns
 info_log_await "Setting routing in ns..."
 
@@ -26,8 +23,11 @@ ip netns e $local_NS_name bash tunnel_router.sh \
 # Remove old tun and route
 info_log_await "Romoving old ssh tun/tap dev and route..."
 
-pkill -9 -f "ssh.*\-w.*$remote_IP" 2>/dev/null || true
-ip netns e $local_NS_name ip r d $remote_IP/32 2>/dev/null || true
+if [ -n "$remote_IP" ]; then
+  pkill -9 -f "ssh.*\-w.*$remote_IP" 2>/dev/null || true
+  ip netns exec "$local_NS_name" ip route delete "$remote_IP/32" 2>/dev/null || true
+fi
+
 
 # Save config
 info_log_await "Saving config..."
