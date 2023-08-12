@@ -54,17 +54,6 @@ info_log_await "Setting ssh tun/tap dev addr and up in ns..."
 ip netns e $local_NS_name ip a a $NEW_SSH_TUN_ADDR/31 peer $NEW_SSH_TUN_ADDR_REMOTE  dev $NEW_TUN_DEV
 ip netns e $local_NS_name ip l s $NEW_TUN_DEV up
 
-# Router settings ns
-info_log_await "Setting routing in ns..."
-
-ip netns e $local_NS_name bash tunnel_router.sh \
-    --remote-ip $REMOTE_IP \
-    --veth-addr $local_veth_IP \
-    --vpeer $local_NS_dev \
-    --ssh-tun-ip $NEW_SSH_TUN_ADDR \
-    --ssh-tun-dev $NEW_TUN_DEV \
-    --def-route-only
-
 # Set ssh tun dev addr remote
 info_log_await "Setting ssh tun/tap dev addr and up remote..."
 
@@ -89,6 +78,17 @@ REMOTE_NFT_RULER_FILE=remote_nft_ruler.sh
 
 scp $REMOTE_NFT_RULER_FILE $REMOTE_IP:/tmp
 ssh $REMOTE_IP bash /tmp/$REMOTE_NFT_RULER_FILE
+
+# Router settings ns
+info_log_await "Setting routing in ns..."
+
+ip netns e $local_NS_name bash tunnel_router.sh \
+    --remote-ip $REMOTE_IP \
+    --veth-addr $local_veth_IP \
+    --vpeer $local_NS_dev \
+    --ssh-tun-ip $NEW_SSH_TUN_ADDR \
+    --ssh-tun-dev $NEW_TUN_DEV \
+    --def-route-only
 
 # Remove old tun and route
 info_log_await "Romoving old ssh tun/tap dev and route..."
