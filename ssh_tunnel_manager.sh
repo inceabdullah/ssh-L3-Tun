@@ -3,7 +3,7 @@
 exec 9< "$0"
 
 if ! flock -n -x 9; then
-  echo "$$/$0 cannot get flock"
+  echo "$$/$0 cannot get flock" >&2
   exit 1
 fi
 
