@@ -107,6 +107,7 @@ ip netns e $TUN_NS_NAME ping -c1 -W2 x.co
 
 if [ $? -ne 0 ]; then
   echo -e "\e[1;31mPing failed\e[0m" # Bold red
+  exit 1
   # Handle the error here
 else
   echo -e "\e[1;32mPing succeeded\e[0m" # Bold green

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+DEF_ROUTE_ONLY=false
+
 while [[ $# -gt 0 ]]; do
   key="$1"
 
@@ -29,6 +31,10 @@ while [[ $# -gt 0 ]]; do
     shift
     shift
     ;;
+    --def-route-only)
+    DEF_ROUTE_ONLY=true
+    shift
+    ;;
     *)
     echo "Unknown option: $key"
     exit 1
@@ -37,8 +43,11 @@ while [[ $# -gt 0 ]]; do
 done
 
 
-ip r d $REMOTE_IP/32 2>/dev/null || true
-ip r a $REMOTE_IP/32 via $VETH_ADDR dev $VPEER
+if [ "$DEF_ROUTE_ONLY" = false ]; then
+  ip r d $REMOTE_IP/32 2>/dev/null || true
+  ip r a $REMOTE_IP/32 via $VETH_ADDR dev $VPEER
+fi
+
 
 # Def route
 

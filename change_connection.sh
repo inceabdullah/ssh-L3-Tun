@@ -1,5 +1,8 @@
 source helpers.sh
 
+set -e
+
+
 REMOTE_IP=$1
 CONFIG_FILE=config.yaml
 
@@ -33,6 +36,13 @@ else
   echo "An error occurred."
 fi
 
+# Add remote ssh route
+info_log_await "Adding ssh route via default..."
+
+ip netns e $local_NS_name ip r d $REMOTE_IP/32 2>/dev/null || true
+ip netns e $local_NS_name ip r a $REMOTE_IP/32 via $local_veth_IP dev $local_NS_dev
+
+
 # Make ssh tun
 info_log_await "Making L3 ssh tunnel..."
 
@@ -52,7 +62,8 @@ ip netns e $local_NS_name bash tunnel_router.sh \
     --veth-addr $local_veth_IP \
     --vpeer $local_NS_dev \
     --ssh-tun-ip $NEW_SSH_TUN_ADDR \
-    --ssh-tun-dev $NEW_TUN_DEV
+    --ssh-tun-dev $NEW_TUN_DEV \
+    --def-route-only
 
 # Set ssh tun dev addr remote
 info_log_await "Setting ssh tun/tap dev addr and up remote..."
@@ -60,10 +71,11 @@ info_log_await "Setting ssh tun/tap dev addr and up remote..."
 ssh $REMOTE_IP /usr/sbin/ip a a $NEW_SSH_TUN_ADDR_REMOTE/31 peer $NEW_SSH_TUN_ADDR dev tun1
 ssh $REMOTE_IP /usr/sbin/ip l s tun1 up
 
-ip netns e $local_NS_name ping -c1 -W2 $NEW_SSH_TUN_ADDR_REMOTE
+ip netns e $local_NS_name ping -c1 -W5 $NEW_SSH_TUN_ADDR_REMOTE
 
 if [ $? -ne 0 ]; then
   echo -e "\e[1;31mPing failed\e[0m" # Bold red
+  exit 1
   # Handle the error here
 else
   echo -e "\e[1;32mPing succeeded\e[0m" # Bold green
@@ -81,7 +93,7 @@ ssh $REMOTE_IP bash /tmp/$REMOTE_NFT_RULER_FILE
 # Remove old tun and route
 info_log_await "Romoving old ssh tun/tap dev and route..."
 
-ip r d $remote_IP/32 2>/dev/null || true
+ip netns e $local_NS_name ip r d $remote_IP/32 2>/dev/null || true
 pkill -9 -f "ssh.*\-w.*$remote_IP" 2>/dev/null || true
 
 

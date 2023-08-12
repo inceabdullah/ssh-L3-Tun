@@ -66,3 +66,8 @@ increment_last_octet() {
   echo "$NEW_IP"
 }
 
+tun_dev_id() {
+  TUN_DEV="$1"
+  NUMBER="${TUN_DEV#tun}"
+  echo "$NUMBER"
+}
