@@ -40,3 +40,12 @@ local:
   veth:
     IP: "$local_veth_IP"
 EOF
+
+external_ip=$(get_external_ip "$local_NS_name")
+if [ $? -eq 0 ]; then
+    echo "External IP: $external_ip"
+    exit 0
+else
+    echo "Failed to retrieve the external IP."
+    exit 1
+fi
