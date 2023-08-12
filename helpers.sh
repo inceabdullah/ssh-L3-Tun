@@ -12,7 +12,7 @@ info_log_await() {
   sleep $WAIT_FOR_RD
 }
 
-function parse_yaml {
+function parse_yaml { #https://stackoverflow.com/a/21189044
    local prefix=$2
    local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
    sed -ne "s|^\($s\):|\1|" \
