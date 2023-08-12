@@ -1,6 +1,7 @@
 #!/bin/bash
 
 DEF_ROUTE_ONLY=false
+DEF_CONFIG=false
 
 while [[ $# -gt 0 ]]; do
   key="$1"
@@ -35,6 +36,10 @@ while [[ $# -gt 0 ]]; do
     DEF_ROUTE_ONLY=true
     shift
     ;;
+    --def-config)
+    DEF_CONFIG=true
+    shift
+    ;;    
     *)
     echo "Unknown option: $key"
     exit 1
@@ -50,5 +55,12 @@ fi
 
 
 # Def route
+if [ "$DEF_ROUTE_ONLY" = true ]; then
+    # Def conf
+    if [ "$DEF_CONFIG" = true ]; then    
+        ip r r default via $VETH_ADDR dev $VPEER
+    else
+        ip r r default via $SSH_TUN_IP dev $SSH_TUN_DEV
+    fi
+fi
 
-ip r r default via $SSH_TUN_IP dev $SSH_TUN_DEV
