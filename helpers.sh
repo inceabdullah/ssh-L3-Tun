@@ -87,3 +87,29 @@ get_external_ip() {
   echo "$external_ip"
   return 0
 }
+
+generate_uuid() {
+  local N B T
+
+  # Generate 16 random hex digits
+  for (( N=0; N<16; ++N ))
+  do
+    B=$(($RANDOM%256))
+
+    # In the 7th byte, force the high nibble to 0x40 to set the version to 4
+    if [ $N -eq 6 ]; then
+      B=$(($B & 0x0F | 0x40))
+    fi
+
+    # In the 9th byte, force the high nibble to 0x80 to set the variant to 1
+    if [ $N -eq 8 ]; then
+      B=$(($B & 0x3F | 0x80))
+    fi
+
+    printf -v T '%02x' $B
+    UUID+=$T
+  done
+
+  # Insert dashes at the appropriate positions
+  echo ${UUID:0:8}-${UUID:8:4}-${UUID:12:4}-${UUID:16:4}-${UUID:20:12}
+}
