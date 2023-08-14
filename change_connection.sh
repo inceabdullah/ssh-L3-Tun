@@ -62,7 +62,11 @@ ip netns e $local_NS_name ip r a $REMOTE_IP/32 via $local_veth_IP dev $local_NS_
 # Make ssh tun
 info_log_await "Making L3 ssh tunnel..."
 
-ip netns e $local_NS_name bash ssh_l3_tunnel.sh $REMOTE_IP $NEW_TUN_DEV
+# Execute the command and capture its output
+output=$(ip netns e $local_NS_name bash ssh_l3_tunnel.sh $REMOTE_IP $NEW_TUN_DEV)
+
+# Extract the value of REMOTE_AVAILABLE_TUN_DEV_ID from the output
+REMOTE_AVAILABLE_TUN_DEV_ID=$(echo "$output" | grep "REMOTE_AVAILABLE_TUN_DEV_ID=" | awk -F'=' '{print $2}')
 
 # Set ssh tun dev addr ns
 info_log_await "Setting ssh tun/tap dev addr and up in ns..."
@@ -73,8 +77,8 @@ ip netns e $local_NS_name ip l s $NEW_TUN_DEV up
 # Set ssh tun dev addr remote
 info_log_await "Setting ssh tun/tap dev addr and up remote..."
 
-ssh $REMOTE_IP /usr/sbin/ip a a $NEW_SSH_TUN_ADDR_REMOTE/31 peer $NEW_SSH_TUN_ADDR dev tun1
-ssh $REMOTE_IP /usr/sbin/ip l s tun1 up
+ssh $REMOTE_IP /usr/sbin/ip a a $NEW_SSH_TUN_ADDR_REMOTE/31 peer $NEW_SSH_TUN_ADDR dev tun$REMOTE_AVAILABLE_TUN_DEV_ID
+ssh $REMOTE_IP /usr/sbin/ip l s tun$REMOTE_AVAILABLE_TUN_DEV_ID up
 
 ip netns e $local_NS_name ping -c1 -W5 $NEW_SSH_TUN_ADDR_REMOTE
 

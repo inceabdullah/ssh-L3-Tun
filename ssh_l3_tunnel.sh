@@ -18,6 +18,21 @@ COUNTER=0
 
 info_log_await "Local ssh tun/tap dev id: $SSH_TUN_DEV_ID"
 
+#-----------Get available tun-----------
+REMOTE_IP=$TEST_SERVER_IP_US
+timeout=20
+TUN_NAME_FILE_PATH=/tmp/$(generate_uuid).txt
+REMOTE_MANAGERFILE=ssh_tunnel_remote_manager.sh
+scp remote/$REMOTE_MANAGERFILE $REMOTE_IP:/tmp
+ssh $REMOTE_IP chmod +x /tmp/$REMOTE_MANAGERFILE
+info_log_await "remote TUN_NAME_FILE_PATH: $TUN_NAME_FILE_PATH\n"
+ssh $REMOTE_IP "nohup /tmp/$REMOTE_MANAGERFILE $timeout >> $TUN_NAME_FILE_PATH 2>&1 &"
+min_available_tun=$(ssh $REMOTE_IP 'bash -s' < remote/tun_reader.sh $TUN_NAME_FILE_PATH $timeout)
+#-----------Get available tun-----------
+REMOTE_AVAILABLE_TUN_DEV_ID=$(tun_dev_id "$min_available_tun")
+echo "REMOTE_AVAILABLE_TUN_DEV_ID=$REMOTE_AVAILABLE_TUN_DEV_ID"
+
+
 # Wait for the ${SSH_TUN_DEV} device to be created
 while true; do
     # echo "ip link show"
@@ -26,7 +41,7 @@ while true; do
     echo "killed."
     autossh -M 0 -f -N -o "ServerAliveInterval=10" \
         -o "ServerAliveCountMax=1" \
-        -w$SSH_TUN_DEV_ID:1 $REMOTE_IP
+        -w$SSH_TUN_DEV_ID:$REMOTE_AVAILABLE_TUN_DEV_ID $REMOTE_IP
     echo "connection triggered."
     sleep $SLEEP_INTERVAL
 
