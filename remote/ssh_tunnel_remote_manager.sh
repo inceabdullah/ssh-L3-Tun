@@ -1,11 +1,9 @@
 #!/bin/bash
 
 exec 9< "$0"
+timeout=$1
 
-if ! flock -w 20 -n -x 9; then
-  echo "$$/$0 cannot get flock" >&2
-  exit 1
-fi
+flock -x 9
 
 get_min_available_tun() {
   # Create an array to track the availability of tun devices
@@ -35,5 +33,6 @@ get_min_available_tun() {
 }
 
 # Example usage
-# tun_device=$(get_min_available_tun)
-# echo "Minimum available tun device: $tun_device"
+tun_device=$(get_min_available_tun)
+echo "$tun_device"
+sleep 20
