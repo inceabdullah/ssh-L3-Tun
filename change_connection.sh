@@ -55,8 +55,7 @@ fi
 # Add remote ssh route
 info_log_await "Adding ssh route via default..."
 
-ip netns e $local_NS_name ip r d $REMOTE_IP/32 2>/dev/null || true
-ip netns e $local_NS_name ip r a $REMOTE_IP/32 via $local_veth_IP dev $local_NS_dev
+ip netns e $local_NS_name ip r r $REMOTE_IP/32 via $local_veth_IP dev $local_NS_dev onlink
 
 
 # Make ssh tun
@@ -120,8 +119,23 @@ info_log_await "Romoving old ssh tun/tap dev and route..."
 if [ -z "$OLD_SSH_TUN_ADDR" ]; then
     echo "Remote tun IP is not assigned."
 else
-    ip netns e $local_NS_name ip r d $remote_IP/32 2>/dev/null || true
-    pkill -9 -f "ssh.*\-w.*$remote_IP" 2>/dev/null || true
+    if [ "$remote_IP" != "$REMOTE_IP" ]; then
+        echo "The IPs are different."
+        ip netns e $local_NS_name ip r d $remote_IP/32 2>/dev/null || true
+    else
+        echo "The IPs are the same."
+    fi
+    pgrep -f "ssh.*-w[0-9]+:[0-9]+.*$remote_IP" | 
+    while read -r pid; do
+        # Get the command line for the process
+        cmdline=$(cat /proc/$pid/cmdline)
+        
+        # Check if it matches the exclusion pattern
+        if [[ ! $cmdline =~ ssh.*-w[0-9]+:$REMOTE_AVAILABLE_TUN_DEV_ID.*$remote_IP ]]; then
+            # Kill the process if it doesn't match the exclusion pattern
+            kill -9 $pid
+        fi
+    done
 fi
 
 

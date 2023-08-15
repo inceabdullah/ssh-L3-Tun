@@ -19,7 +19,6 @@ COUNTER=0
 info_log_await "Local ssh tun/tap dev id: $SSH_TUN_DEV_ID"
 
 #-----------Get available tun-----------
-REMOTE_IP=$TEST_SERVER_IP_US
 timeout=20
 TUN_NAME_FILE_PATH=/tmp/$(generate_uuid).txt
 REMOTE_MANAGERFILE=ssh_tunnel_remote_manager.sh
@@ -37,8 +36,19 @@ echo "REMOTE_AVAILABLE_TUN_DEV_ID=$REMOTE_AVAILABLE_TUN_DEV_ID"
 while true; do
     # echo "ip link show"
     # ip link show
-    pkill -9 -f "ssh.*\-w.*$REMOTE_IP" 2>/dev/null || true
-    echo "killed."
+    # pkill -9 -f "ssh.*\-w[0-9]+:$REMOTE_AVAILABLE_TUN_DEV_ID.*$REMOTE_IP" 2>/dev/null || true
+    #     pgrep -f "ssh.*-w[0-9]+:[0-9]+.*$REMOTE_IP" | 
+    #     while read -r pid; do
+    #         # Get the command line for the process
+    #         cmdline=$(cat /proc/$pid/cmdline)
+            
+    #         # Check if it matches the exclusion pattern
+    #         if [[ ! $cmdline =~ ssh.*-w[0-9]+:$REMOTE_AVAILABLE_TUN_DEV_ID.*$remote_IP ]]; then
+    #             # Kill the process if it doesn't match the exclusion pattern
+    #             kill -9 $pid
+    #         fi
+    #     done
+    # echo "killed."
     autossh -M 0 -f -N -o "ServerAliveInterval=10" \
         -o "ServerAliveCountMax=1" \
         -w$SSH_TUN_DEV_ID:$REMOTE_AVAILABLE_TUN_DEV_ID $REMOTE_IP
