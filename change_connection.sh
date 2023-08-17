@@ -63,6 +63,8 @@ info_log_await "Making L3 ssh tunnel..."
 
 # Execute the command and capture its output
 output=$(ip netns e $local_NS_name bash ssh_l3_tunnel.sh $REMOTE_IP $NEW_TUN_DEV)
+echo -e "ssh_l3_tunnel.sh output:"
+echo "$output"
 
 # Extract the value of REMOTE_AVAILABLE_TUN_DEV_ID from the output
 REMOTE_AVAILABLE_TUN_DEV_ID=$(echo "$output" | grep "REMOTE_AVAILABLE_TUN_DEV_ID=" | awk -F'=' '{print $2}')
