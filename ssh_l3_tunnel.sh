@@ -31,6 +31,8 @@ min_available_tun=$(ssh $REMOTE_IP 'bash -s' < remote/tun_reader.sh $TUN_NAME_FI
 REMOTE_AVAILABLE_TUN_DEV_ID=$(tun_dev_id "$min_available_tun")
 echo "REMOTE_AVAILABLE_TUN_DEV_ID=$REMOTE_AVAILABLE_TUN_DEV_ID"
 
+# kill same host tun dev TODO if PIDs are in the same ns
+pkill -9 -f "ssh.*\-w$SSH_TUN_DEV_ID+:[0-9]+.*" 2>/dev/null || true
 
 # Wait for the ${SSH_TUN_DEV} device to be created
 while true; do
@@ -53,6 +55,8 @@ while true; do
         -o "ServerAliveCountMax=1" \
         -w$SSH_TUN_DEV_ID:$REMOTE_AVAILABLE_TUN_DEV_ID $REMOTE_IP
     echo "connection triggered."
+    AUTOSSH_PID=$(pgrep -f "autossh.*\-w$SSH_TUN_DEV_ID:$REMOTE_AVAILABLE_TUN_DEV_ID.*$REMOTE_IP")
+    echo -e "AUTOSSH_PID:\t$AUTOSSH_PID"
     sleep $SLEEP_INTERVAL
 
   # Check if the ${SSH_TUN_DEV} device exists
