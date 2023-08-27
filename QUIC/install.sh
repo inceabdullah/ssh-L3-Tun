@@ -71,7 +71,7 @@ for dir in "${directories[@]}"; do
     continue
   fi
   for binary in $BINARY_NAMES; do
-    info_log_await "rm binary: $binary in $dir"
+    info_log "rm binary: $binary in $dir"
     if [ -e "$dir/$binary" ]; then
       echo "Removing $binary from $dir"
       sudo rm "$dir/$binary"
@@ -82,10 +82,35 @@ done
 # cp binaries to /usr/local/bin
 USR_BIN_DIR="/usr/local/bin"
 for binary in $BINARY_NAMES; do
-    info_log_await "cp $binary to $USR_BIN_DIR"
+    info_log "cp $binary to $USR_BIN_DIR"
     cp "$REPO_DIR/target/release/$binary" "$USR_BIN_DIR"
 done
 
 # cp client config
 info_log_await "cp client config"
 cp -f "$REPO_DIR/examples/client.toml" "$SCRIPT_DIR"
+
+CLIENT_CONFIG_FILE_PATH="$SCRIPT_DIR/client.toml"
+
+info_log_await "def conf:"
+cat "$CLIENT_CONFIG_FILE_PATH"
+
+
+# reconf
+## Generate a random password using OpenSSL and base64 encoding
+random_username="l3-tun-$(generate_uuid)"
+echo -e "\n\trandom_username: $random_username"
+random_password=$(openssl rand -base64 32)
+echo -e "\n\trandom_password: $random_password"
+
+
+## File to edit
+config_file="$CLIENT_CONFIG_FILE_PATH"
+
+## Use sed to replace mtu and password values
+sed -i "s/\(mtu = \).*/\1 1000/" "$config_file"
+sed -i "s/\(username = \).*/\1 \"$random_username\"/" "$config_file"
+sed -i "s|\(password = \).*|\1 \"$random_password\"|" "$config_file"
+
+info_log_await "new conf:"
+cat "$CLIENT_CONFIG_FILE_PATH"
