@@ -86,12 +86,19 @@ for binary in $BINARY_NAMES; do
     cp "$REPO_DIR/target/release/$binary" "$USR_BIN_DIR"
 done
 
-# cp client config
+# cp client and server config
 info_log_await "cp client config"
 cp -f "$REPO_DIR/examples/client.toml" "$SCRIPT_DIR"
 
 info_log_await "cp client config"
 cp -f "$REPO_DIR/examples/server.toml" "$SCRIPT_DIR"
+
+## cp cert and users
+info_log_await "cp cert"
+cp -rf "$REPO_DIR/examples/cert" "$SCRIPT_DIR"
+
+info_log_await "cp users"
+cp -f "$REPO_DIR/examples/users" "$SCRIPT_DIR"
 
 CLIENT_CONFIG_FILE_PATH="$SCRIPT_DIR/client.toml"
 SERVER_CONFIG_FILE_PATH="$SCRIPT_DIR/server.toml"
@@ -101,6 +108,8 @@ cat "$CLIENT_CONFIG_FILE_PATH"
 
 info_log_await "def server conf:"
 cat "$SERVER_CONFIG_FILE_PATH"
+
+
 
 
 # reconf
