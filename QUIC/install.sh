@@ -85,3 +85,7 @@ for binary in $BINARY_NAMES; do
     info_log_await "cp $binary to $USR_BIN_DIR"
     cp "$REPO_DIR/target/release/$binary" "$USR_BIN_DIR"
 done
+
+# cp client config
+info_log_await "cp client config"
+cp -f "$REPO_DIR/examples/client.toml" "$SCRIPT_DIR"
