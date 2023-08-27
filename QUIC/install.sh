@@ -66,6 +66,10 @@ directories=($(echo $PATH | tr ":" " "))
 
 ## Loop through each directory and remove binaries if found
 for dir in "${directories[@]}"; do
+  # Skip directories that start with /root
+  if [[ "$dir" == /root* ]]; then
+    continue
+  fi
   for binary in $BINARY_NAMES; do
     info_log_await "rm binary: $binary in $dir"
     if [ -e "$dir/$binary" ]; then
@@ -73,4 +77,11 @@ for dir in "${directories[@]}"; do
       sudo rm "$dir/$binary"
     fi
   done
+done
+
+# cp binaries to /usr/local/bin
+USR_BIN_DIR="/usr/local/bin"
+for binary in $BINARY_NAMES; do
+    info_log_await "cp $binary to $USR_BIN_DIR"
+    cp "$REPO_DIR/target/release/$binary" "$USR_BIN_DIR"
 done
