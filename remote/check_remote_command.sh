@@ -5,7 +5,7 @@ if [ "$#" -ne 2 ]; then
   echo "Usage: $0 <remote_host> <command_to_check>"
   exit 1
 fi
-
+echo "\$@: $@"
 # Remote server details
 REMOTE_HOST="$1"
 
@@ -13,7 +13,10 @@ REMOTE_HOST="$1"
 COMMAND_TO_CHECK="$2"
 
 # Check if the command exists on the remote machine
-ssh "root@${REMOTE_HOST}" "command -v ${COMMAND_TO_CHECK} >/dev/null 2>&1"
+ssh \
+    -o "StrictHostKeyChecking=no" \
+    -o "UserKnownHostsFile=/dev/null" \
+    "root@${REMOTE_HOST}" "command -v ${COMMAND_TO_CHECK} >/dev/null 2>&1"
 
 # Check the exit status
 if [ $? -eq 0 ]; then
