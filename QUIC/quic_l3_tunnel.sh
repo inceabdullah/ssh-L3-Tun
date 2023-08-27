@@ -44,10 +44,15 @@ HELPERS_DIR_ABS="$(readlink -f "$HELPERS_DIR")"
 ## check_remote_command.sh
 ### Define the relative path to the helpers directory
 CHECK_REMOTE_COMMAND_FILE_PATH="$SCRIPT_DIR/../remote/check_remote_command.sh"
-# ##Canonicalize the relative path to get the absolute path
 ### This step is optional and is useful if you need the absolute path
 CHECK_REMOTE_COMMAND_FILE_PATH_ABS="$(readlink -f "$CHECK_REMOTE_COMMAND_FILE_PATH")"
 echo "CHECK_REMOTE_COMMAND_FILE_PATH_ABS: $CHECK_REMOTE_COMMAND_FILE_PATH_ABS"
+
+## scp.sh
+SCP_FILE_PATH="$SCRIPT_DIR/../remote/scp.sh"
+### This step is optional and is useful if you need the absolute path
+SCP_FILE_PATH_ABS="$(readlink -f "$SCP_FILE_PATH")"
+
 
 source $HELPERS_DIR_ABS
 
@@ -57,6 +62,10 @@ source $HELPERS_DIR_ABS
 # Check remote quincy-server and quincy-users
 ## Run check_remote_command.sh and capture the result
 REMOTE_QUINCY_COMMAND="quincy-server"
+REMOTE_PATH="/usr/local/bin"
+LOCAL_BIN_PREFIX="$REMOTE_PATH"
+LOCAL_QUINCY_BIN_PATHS="quincy-server quincy-users"
+
 result=$(bash $CHECK_REMOTE_COMMAND_FILE_PATH_ABS $REMOTE_IP $REMOTE_QUINCY_COMMAND || true)
 echo "result: $result"
 ## Check the result to see if the command exists
@@ -64,4 +73,9 @@ if [[ $result == *"exists"* ]]; then
   echo "The command exists on the remote machine."
 else
   echo "The command does not exist on the remote machine."
+  info_log_await "copy quincy-server and quincy-users to remote $REMOTE_IP"
+    for local_bin in $LOCAL_QUINCY_BIN_PATHS; do
+        info_log "send $local_bin to the remote $REMOTE_IP in the path $REMOTE_PATH"
+        bash $SCP_FILE_PATH_ABS $REMOTE_IP $LOCAL_BIN_PREFIX/$local_bin $REMOTE_PATH
+    done
 fi
