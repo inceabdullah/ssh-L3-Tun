@@ -53,6 +53,9 @@ SCP_FILE_PATH="$SCRIPT_DIR/../remote/scp.sh"
 ### This step is optional and is useful if you need the absolute path
 SCP_FILE_PATH_ABS="$(readlink -f "$SCP_FILE_PATH")"
 
+## run_remote_command.sh
+RUN_REMOTE_COMMAND_FILE_PATH="$SCRIPT_DIR/../remote/run_remote_command.sh"
+RUN_REMOTE_COMMAND_FILE_PATH_ABS="$(readlink -f "$RUN_REMOTE_COMMAND_FILE_PATH")"
 
 source $HELPERS_DIR_ABS
 
@@ -78,4 +81,22 @@ else
         info_log "send $local_bin to the remote $REMOTE_IP in the path $REMOTE_PATH"
         bash $SCP_FILE_PATH_ABS $REMOTE_IP $LOCAL_BIN_PREFIX/$local_bin $REMOTE_PATH
     done
+  # send conf files
+  ## mkdir conf folder /root/.quincy
+  REMOTE_CONF_DIR="/root/.quincy"
+  REMOTE_COMMAND="mkdir -p $REMOTE_CONF_DIR"
+  bash $RUN_REMOTE_COMMAND_FILE_PATH_ABS --remote-ip $REMOTE_IP --command "$REMOTE_COMMAND"
+  ## send confs
+  CONF_PATHS="server.toml cert users"
+    for conf_path in $CONF_PATHS; do
+        info_log "send $conf_path to the remote $REMOTE_IP in the path $REMOTE_CONF_DIR"
+        bash $SCP_FILE_PATH_ABS $REMOTE_IP $SCRIPT_DIR/$conf_path $REMOTE_CONF_DIR
+    done
+
+
 fi
+
+#TODO cp server conf end examples users file, then send it to remote
+# when sending binaries. to /root/.quincy dir
+# Check quincy server binary if running on remote, if it does, check port the binary of it, then reconf client config
+# Not forget that: /etc/hosts config

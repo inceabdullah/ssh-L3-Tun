@@ -13,7 +13,7 @@ LOCAL_PATH="$2"
 REMOTE_PATH="$3"
 
 # Check if the command exists on the remote machine
-scp \
+scp -r \
     -o "StrictHostKeyChecking=no" \
     -o "UserKnownHostsFile=/dev/null" \
     $LOCAL_PATH \
@@ -23,6 +23,6 @@ scp \
 if [ $? -eq 0 ]; then
   echo "scp successful."
 else
-  echo "scp successful."
+  echo "scp failed."
   exit 1
 fi
