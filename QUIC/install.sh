@@ -37,4 +37,15 @@ else
   info_log_await "$REPO_DIR is not empty."
 fi
 
+# rust check
+# Check if 'cargo' command is available
+if command -v cargo >/dev/null 2>&1; then
+  echo "Cargo is already installed."
+else
+  echo "Cargo is not installed. Installing Rust..."
+  # Install Rust using rustup
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+  # Add cargo to PATH for the current session
+  source $HOME/.cargo/env
+fi
 
