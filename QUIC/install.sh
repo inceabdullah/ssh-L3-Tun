@@ -49,3 +49,10 @@ else
   source $HOME/.cargo/env
 fi
 
+
+# Build quincy
+
+info_log_await "quincy has been building..."
+
+cd "$REPO_DIR"
+cargo build --release --manifest-path="$REPO_DIR/Cargo.toml"
