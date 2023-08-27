@@ -90,10 +90,17 @@ done
 info_log_await "cp client config"
 cp -f "$REPO_DIR/examples/client.toml" "$SCRIPT_DIR"
 
+info_log_await "cp client config"
+cp -f "$REPO_DIR/examples/server.toml" "$SCRIPT_DIR"
+
 CLIENT_CONFIG_FILE_PATH="$SCRIPT_DIR/client.toml"
+SERVER_CONFIG_FILE_PATH="$SCRIPT_DIR/server.toml"
 
 info_log_await "def conf:"
 cat "$CLIENT_CONFIG_FILE_PATH"
+
+info_log_await "def server conf:"
+cat "$SERVER_CONFIG_FILE_PATH"
 
 
 # reconf
@@ -108,9 +115,18 @@ echo -e "\n\trandom_password: $random_password"
 config_file="$CLIENT_CONFIG_FILE_PATH"
 
 ## Use sed to replace mtu and password values
-sed -i "s/\(mtu = \).*/\1 1000/" "$config_file"
-sed -i "s/\(username = \).*/\1 \"$random_username\"/" "$config_file"
-sed -i "s|\(password = \).*|\1 \"$random_password\"|" "$config_file"
+sed -i "s/\(mtu =\).*/\1 1000/" "$config_file"
+sed -i "s/\(username =\).*/\1 \"$random_username\"/" "$config_file"
+sed -i "s|\(password =\).*|\1 \"$random_password\"|" "$config_file"
+
+## server config edit mtu
+server_config_file="$SERVER_CONFIG_FILE_PATH"
+sed -i "s/\(mtu =\).*/\1 1000/" "$server_config_file"
+
 
 info_log_await "new conf:"
 cat "$CLIENT_CONFIG_FILE_PATH"
+
+# server conf
+info_log_await "new server conf:"
+cat "$SERVER_CONFIG_FILE_PATH"
