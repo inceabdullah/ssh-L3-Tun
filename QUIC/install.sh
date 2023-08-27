@@ -127,11 +127,15 @@ config_file="$CLIENT_CONFIG_FILE_PATH"
 sed -i "s/\(mtu =\).*/\1 1000/" "$config_file"
 sed -i "s/\(username =\).*/\1 \"$random_username\"/" "$config_file"
 sed -i "s|\(password =\).*|\1 \"$random_password\"|" "$config_file"
+## rm examples/
+sed -i "s|examples/||" "$config_file"
 
 ## server config edit mtu
 server_config_file="$SERVER_CONFIG_FILE_PATH"
 sed -i "s/\(mtu =\).*/\1 1000/" "$server_config_file"
 
+## rm examples/
+sed -i "s|examples/||" "$server_config_file"
 
 info_log_await "new conf:"
 cat "$CLIENT_CONFIG_FILE_PATH"
