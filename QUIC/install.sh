@@ -56,3 +56,21 @@ info_log_await "quincy has been building..."
 
 cd "$REPO_DIR"
 cargo build --release --manifest-path="$REPO_DIR/Cargo.toml"
+
+# Rm all bynaries for quincy
+## List of binary names to remove
+BINARY_NAMES="quincy-client quincy-server quincy-users"
+
+## Directories to search for binaries
+directories=($(echo $PATH | tr ":" " "))
+
+## Loop through each directory and remove binaries if found
+for dir in "${directories[@]}"; do
+  for binary in $BINARY_NAMES; do
+    info_log_await "rm binary: $binary in $dir"
+    if [ -e "$dir/$binary" ]; then
+      echo "Removing $binary from $dir"
+      sudo rm "$dir/$binary"
+    fi
+  done
+done
