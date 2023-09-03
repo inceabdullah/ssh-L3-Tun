@@ -73,3 +73,6 @@ while true; do
   fi
 done
 
+#TODO bug: reserved IP subdomain. If there are multiple connection on remote server tun0, and tun1, client 10.0.1.1 and 
+# other client 10.0.0.1, remote tun0 and tun1 10.0.0.2 and 10.0.0.2. It is a bug.
+# empty subdomain should be calculated when empty tun dev id is getting.

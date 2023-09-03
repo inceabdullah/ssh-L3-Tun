@@ -96,7 +96,6 @@ else
 
 fi
 
-#TODO cp server conf end examples users file, then send it to remote
-# when sending binaries. to /root/.quincy dir
+#TODO
 # Check quincy server binary if running on remote, if it does, check port the binary of it, then reconf client config
 # Not forget that: /etc/hosts config
