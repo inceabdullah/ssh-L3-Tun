@@ -53,6 +53,8 @@ while true; do
     # echo "killed."
     autossh -M 0 -f -N -o "ServerAliveInterval=10" \
         -o "ServerAliveCountMax=1" \
+        -o "StrictHostKeyChecking=no" \
+        -o "UserKnownHostsFile=/dev/null" \
         -w$SSH_TUN_DEV_ID:$REMOTE_AVAILABLE_TUN_DEV_ID $REMOTE_IP
     echo "connection triggered."
     AUTOSSH_PID=$(pgrep -f "autossh.*\-w$SSH_TUN_DEV_ID:$REMOTE_AVAILABLE_TUN_DEV_ID.*$REMOTE_IP")
@@ -73,3 +75,6 @@ while true; do
   fi
 done
 
+#TODO bug: reserved IP subdomain. If there are multiple connection on remote server tun0, and tun1, client 10.0.1.1 and 
+# other client 10.0.0.1, remote tun0 and tun1 10.0.0.2 and 10.0.0.2. It is a bug.
+# empty subdomain should be calculated when empty tun dev id is getting.

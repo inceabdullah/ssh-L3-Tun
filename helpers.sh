@@ -113,3 +113,41 @@ generate_uuid() {
   # Insert dashes at the appropriate positions
   echo ${UUID:0:8}-${UUID:8:4}-${UUID:12:4}-${UUID:16:4}-${UUID:20:12}
 }
+
+find_unused_subnet() {
+  # Example usage
+  # find_unused_subnet "127.0.0.1 172.17.0.2 10.0.0.1 10.0.1.1 10.156.0.2 127.0.0.1 10.0.0.2 10.0.1.2"
+
+  # Declare an associative array to store used subnets
+  declare -A usedSubnets
+
+  # Get IPs from the argument string and split them into an array
+  IFS=' ' read -ra ips <<< "$1"
+
+  # Store the subnets in the associative array
+  for ip in "${ips[@]}"; do
+    echo "Given IP Address: $ip"
+    # Extract the /24 subnet from the IP
+    local subnet="${ip%.*}.0"
+    usedSubnets["$subnet"]=1
+  done
+
+  # Function to check if a subnet is used
+  isSubnetUsed() {
+    [[ -n "${usedSubnets[$1]}" ]]
+  }
+
+  # Find the minimum unused subnet in 10.a.b.0/24
+  for a in {0..255}; do
+    for b in {0..255}; do
+      local subnet="10.$a.$b.0"
+      if ! isSubnetUsed "$subnet"; then
+        echo "Minimum unused subnet: $subnet/24"
+        return 0
+      fi
+    done
+  done
+
+  echo "No unused subnet found in 10.a.b.0/24"
+  return 1
+}
