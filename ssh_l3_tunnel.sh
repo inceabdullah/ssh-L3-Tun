@@ -53,6 +53,8 @@ while true; do
     # echo "killed."
     autossh -M 0 -f -N -o "ServerAliveInterval=10" \
         -o "ServerAliveCountMax=1" \
+        -o "StrictHostKeyChecking=no" \
+        -o "UserKnownHostsFile=/dev/null" \
         -w$SSH_TUN_DEV_ID:$REMOTE_AVAILABLE_TUN_DEV_ID $REMOTE_IP
     echo "connection triggered."
     AUTOSSH_PID=$(pgrep -f "autossh.*\-w$SSH_TUN_DEV_ID:$REMOTE_AVAILABLE_TUN_DEV_ID.*$REMOTE_IP")
