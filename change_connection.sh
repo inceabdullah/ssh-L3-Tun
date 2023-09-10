@@ -78,8 +78,8 @@ ip netns e $local_NS_name ip l s $NEW_TUN_DEV up
 # Set ssh tun dev addr remote
 info_log_await "Setting ssh tun/tap dev addr and up remote..."
 
-ssh $REMOTE_IP /usr/sbin/ip a a $NEW_SSH_TUN_ADDR_REMOTE/31 peer $NEW_SSH_TUN_ADDR dev tun$REMOTE_AVAILABLE_TUN_DEV_ID
-ssh $REMOTE_IP /usr/sbin/ip l s tun$REMOTE_AVAILABLE_TUN_DEV_ID up
+ssh -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null" $REMOTE_IP /usr/sbin/ip a a $NEW_SSH_TUN_ADDR_REMOTE/31 peer $NEW_SSH_TUN_ADDR dev tun$REMOTE_AVAILABLE_TUN_DEV_ID
+ssh -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null" $REMOTE_IP /usr/sbin/ip l s tun$REMOTE_AVAILABLE_TUN_DEV_ID up
 
 ip netns e $local_NS_name ping -c1 -W5 $NEW_SSH_TUN_ADDR_REMOTE
 
@@ -97,8 +97,8 @@ info_log_await "Setting nft rules in remote..."
 
 REMOTE_NFT_RULER_FILE=remote_nft_ruler.sh
 
-scp $REMOTE_NFT_RULER_FILE $REMOTE_IP:/tmp
-ssh $REMOTE_IP bash /tmp/$REMOTE_NFT_RULER_FILE
+scp -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null" $REMOTE_NFT_RULER_FILE $REMOTE_IP:/tmp
+ssh -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null" $REMOTE_IP bash /tmp/$REMOTE_NFT_RULER_FILE
 
 # Router settings ns
 info_log_await "Setting routing in ns..."
